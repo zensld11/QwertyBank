@@ -1,9 +1,6 @@
 package com.degilok.al.cbank.exception.handler;
 
-import com.degilok.al.cbank.exception.InvalidEmailException;
-import com.degilok.al.cbank.exception.InvalidPasswordException;
-import com.degilok.al.cbank.exception.UserNameAlreadyExistException;
-import com.degilok.al.cbank.exception.UserNameNotFoundException;
+import com.degilok.al.cbank.exception.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -29,5 +26,10 @@ public class ExceptionHandlerController {
     @ExceptionHandler(value = UserNameNotFoundException.class)
     public ResponseEntity<String> handleUserNameNotFoundException(UserNameNotFoundException e) {
         return ResponseEntity.ofNullable("Имя пользователя не найдено или его не существует " + e.getMessage());
+    }
+
+    @ExceptionHandler(value = UserIdNotFoundException.class)
+    public ResponseEntity<String> handleUserIdNotFoundException(UserIdNotFoundException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
 }

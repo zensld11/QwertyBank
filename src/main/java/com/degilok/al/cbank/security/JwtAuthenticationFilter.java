@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,7 @@ import java.time.Instant;
                 проверка, что токен еще не истек, если время истечения токена позже текущего времени, значит токен еще действителен
 
  */
+@Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -40,6 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     //doFilterInternal вызывается для каждого входящего http запроса(основной механизм фильтрации в секьюрити)
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");//получение заголовка авторизатион
+       log.info("Authorization header: {}", request.getHeader("Authorization"));
         if (authHeader != null && authHeader.startsWith("Bearer ")) {//проверка наличия биарер
             String jwtToken = authHeader.substring(7);//удаление префикса биаерер, оставляя только сам токен
             try {
@@ -60,6 +63,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
             } catch (Exception e) {
                 handleException(response, "invalidJwt", "Токен не валиден", HttpStatus.UNAUTHORIZED);
+                return;
             }
         } else {
             filterChain.doFilter(request, response);
@@ -73,7 +77,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         response.setCharacterEncoding("UTF-8");
 
         ObjectMapper mapper = new ObjectMapper();
-        String responseBody = mapper.writeValueAsString(new Error(errorCode));
+        String responseBody = mapper.writeValueAsString(new Error(errorCode, errorMessage));
         response.getWriter().write(responseBody);
+    }
+
+    private record Error(String code, String message) {
+
     }
 }

@@ -38,12 +38,12 @@ public class User implements UserDetails {
     @Override
     //должен возвращать набор привилегий пользователя
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Arrays.asList(new SimpleGrantedAuthority("USER"));
+        return Arrays.asList(new SimpleGrantedAuthority(getRole()));
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return name;
     }
 
     @Override

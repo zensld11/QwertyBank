@@ -28,7 +28,7 @@ public class JwtTokenProvider {
                 .setSubject(authentication.getName())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 86400000))
-                .signWith(privateKey, SignatureAlgorithm.HS256)
+                .signWith(privateKey, SignatureAlgorithm.RS256)//RS256, требует пару ключей
                 .compact();
     }
 
@@ -36,7 +36,7 @@ public class JwtTokenProvider {
         return Jwts.parserBuilder()
                 .setSigningKey(publicKey)
                 .build()
-                .parseClaimsJwt(token)
+                .parseClaimsJws(token)//было parseClaimsJwt
                 .getBody()
                 .getSubject();
     }
@@ -46,7 +46,7 @@ public class JwtTokenProvider {
             Jwts.parserBuilder()
                     .setSigningKey(publicKey)
                     .build()
-                    .parseClaimsJwt(token);
+                    .parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
             log.error("Expired JWT token", e);

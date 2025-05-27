@@ -23,8 +23,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginDto loginDto) throws Exception {
-        String token = String.valueOf(securityConfig.jwtDecoder().decode(loginDto.getPassword()));
-        String result = authService.login(loginDto.getUsername(), token);
-        return ResponseEntity.ok().body("Success " + result);
+             String result = authService.login(loginDto.getUsername(), loginDto.getPassword());
+        return ResponseEntity.ok().body("Bearer " + result);
     }
 }

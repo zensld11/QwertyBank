@@ -36,25 +36,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         httpSecurity.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(requests -> requests
-                        .requestMatchers(HttpMethod.GET, "/user/check").permitAll()
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/admin/").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/create").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/token").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/user/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/create").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/reset-password").authenticated()
-                        .anyRequest().authenticated()).sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .requestMatchers(HttpMethod.GET, "/accounts/getId").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/admin/registration").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/reset-password").authenticated())
+                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                         .accessDeniedPage("/doesntHasAccess")
                 );
-//                .cors(cors -> cors//TODO:механизм, позволяющий получить доступ к ресурсам, которые находятся на другом источнике(сложные cors сначала проверяет, а потом решает блокировать или разрешать их)
-//                        .configurationSource(request -> {
-//                            CorsConfiguration corsConfig = new CorsConfiguration();
-//                            corsConfig.setAllowedOrigins(List.of("http://localhost:9092"));//разрешенные источники
-//                            corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));//разрешенные методы
-//                            corsConfig.setAllowedHeaders(List.of("*"));//разрешенные заголовки
-//                            corsConfig.setAllowCredentials(true);//нужно ли передавать куки
-//                            corsConfig.setMaxAge(3600L);
-//                            return corsConfig;
+//.cors(cors -> cors//TODO:механизм, позволяющий получить доступ к ресурсам, которые находятся на другом источнике(сложные cors сначала проверяет, а потом решает блокировать или разрешать их)
         httpSecurity.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
